@@ -64,12 +64,6 @@
     if (![url hasPrefix:@"http"]) {
         return;
     }
-    if (![dic isKindOfClass:[NSDictionary class]]) {
-        return;
-    }
-    if ([dic count] == 0) {
-        return;
-    }
     if (!_success) {
         _success = success;
     }
@@ -93,7 +87,17 @@
     }else if ([method isEqualToString:@"POST"]){
         request.HTTPBody = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
     }
-
+     
+    //You may need to set Cookie for the request.
+#if 0
+    NSArray *array = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[NSURL URLWithString:@"http://www.example.com"]];
+    NSDictionary *cookdict = [NSHTTPCookie requestHeaderFieldsWithCookies:array];
+    NSString *cookie = cookdict[@"Cookie"];
+    if (cookie.length > 0) {
+        [request setValue:cookie forHTTPHeaderField:@"Cookie"];
+    }
+#endif
+              
     [self.webView loadRequest:request];
 }
 
