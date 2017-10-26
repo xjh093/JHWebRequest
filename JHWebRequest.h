@@ -42,4 +42,13 @@ typedef void(^JHWebRequestFailure)(NSError *error);
       parameter:(NSDictionary *)dic
         success:(JHWebRequestSuccess)success
         failure:(JHWebRequestFailure)failure;
+
+//image upload request
+- (void)jh_uploadImage:(NSString *)url
+             parameter:(UIImage *)image
+            uploadName:(NSString *)uploadName
+       serverSavedName:(NSString *)savedName
+               success:(JHWebRequestSuccess)success
+               failure:(JHWebRequestFailure)failure;
+
 @end
