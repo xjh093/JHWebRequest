@@ -47,6 +47,66 @@
     [self jh_method:@"POST" url:url parameter:dic success:success failure:failure];
 }
 
+//image upload request
+- (void)jh_uploadImage:(NSString *)url
+             parameter:(UIImage *)image
+            uploadName:(NSString *)uploadName
+       serverSavedName:(NSString *)savedName
+               success:(JHWebRequestSuccess)success
+               failure:(JHWebRequestFailure)failure{
+    if (!image) {
+        if (failure) {
+            NSError *error = [NSError errorWithDomain:@"com.haocold.JHWebRequest" code:-2 userInfo:@{@"info":@"parameter 'image' is nil!"}];
+            failure(error);
+        }
+        return;
+    }
+    if (!_success) {
+        _success = success;
+    }
+    if (!_failure) {
+        _failure = failure;
+    }
+    
+    NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
+    request.HTTPMethod = @"POST";
+    request.timeoutInterval = 15.0;
+
+    NSMutableData *requestMutableData=[NSMutableData data];
+    
+    //1.\r\n--Boundary+72D4CD655314C423\r\n
+    static NSString *boundary = @"com.haocold.JHWerRequest";
+    NSMutableString *myString = [NSMutableString stringWithFormat:@"\r\n--%@\r\n",boundary];
+    
+    //2. Content-Disposition: form-data; name="uploadFile"; filename="001.png"\r\n
+    [myString appendString:[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"%@\"\r\n",uploadName,savedName]];
+    
+    //3. Content-Type:image/png \r\n  // 图片类型为png
+    [myString appendString:[NSString stringWithFormat:@"Content-Type:application/octet-stream\r\n"]];
+    
+    //4. Content-Transfer-Encoding: binary\r\n\r\n  // 编码方式
+    [myString appendString:@"Content-Transfer-Encoding: binary\r\n\r\n"];
+    
+    //转换成为二进制数据
+    [requestMutableData appendData:[myString dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    //5.文件数据部分
+    NSData *data = UIImageJPEGRepresentation(image, 1);
+    [requestMutableData appendData:data];
+    
+    //6. \r\n--Boundary+72D4CD655314C423--\r\n  // 结束
+    [requestMutableData appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n",boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    //设置请求体
+    request.HTTPBody=requestMutableData;
+    
+    //设置请求头
+    NSString *headStr=[NSString stringWithFormat:@"multipart/form-data; boundary=%@",boundary];
+    [request setValue:headStr forHTTPHeaderField:@"Content-Type"];
+    
+    [self.xx_webView loadRequest:request];
+}
+
 #pragma mark - private
 
 - (void)jh_method:(NSString *)method
