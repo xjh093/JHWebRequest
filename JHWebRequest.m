@@ -135,6 +135,7 @@
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:url]];
     request.HTTPMethod = method;
+    request.timeoutInterval = _timeoutInterval <= 0 ? 10 : _timeoutInterval;
     NSMutableArray *httpBodys = @[].mutableCopy;
     for (NSString *key in dic.allKeys) {
         NSString *value = dic[key];
