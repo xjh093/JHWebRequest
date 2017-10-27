@@ -38,6 +38,9 @@ typedef void(^JHWebRequestFailure)(NSError *error);
 // failure callback.
 @property (copy,    nonatomic) JHWebRequestFailure failure;
 
+// time out.
+@property (assign,  nonatomic) NSTimeInterval  timeoutInterval;
+
 // start a get request.
 - (void)jh_start_get_request;
 
@@ -78,6 +81,7 @@ typedef void(^JHWebRequestFailure)(NSError *error);
 
 @interface JHWebRequest()<UIWebViewDelegate>
 @property (strong,  nonatomic) UIWebView *webView;
+@property (strong,  nonatomic) NSMutableDictionary *requestDic;
 @end
 
 @implementation JHWebRequest
@@ -166,7 +170,8 @@ typedef void(^JHWebRequestFailure)(NSError *error);
     NSString *headStr=[NSString stringWithFormat:@"multipart/form-data; boundary=%@",boundary];
     [request setValue:headStr forHTTPHeaderField:@"Content-Type"];
     
-    [self.xx_webView loadRequest:request];
+    [self.webView loadRequest:request];
+    [self.requestDic setObject:self forKey:[@(_webView.hash) stringValue]];
 }
 
 #pragma mark - private
@@ -195,6 +200,7 @@ typedef void(^JHWebRequestFailure)(NSError *error);
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:url]];
     request.HTTPMethod = method;
+    request.timeoutInterval = _timeoutInterval <= 0 ? 10 : _timeoutInterval;
     NSMutableArray *httpBodys = @[].mutableCopy;
     for (NSString *key in dic.allKeys) {
         NSString *value = dic[key];
@@ -221,6 +227,7 @@ typedef void(^JHWebRequestFailure)(NSError *error);
 #endif
 
     [self.webView loadRequest:request];
+    [self.requestDic setObject:self forKey:[@(_webView.hash) stringValue]];
 }
 
 #pragma mark - UIWebViewDelegate
@@ -248,13 +255,14 @@ typedef void(^JHWebRequestFailure)(NSError *error);
     }else if (_success){
         _success(dic);
     }
-    
+    [self.requestDic removeObjectForKey:[@(webView.hash) stringValue]];
 }
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
     JHWRLog(@"error:%@",error);
     if (error && _failure) {
         _failure(error);
     }
+    [self.requestDic removeObjectForKey:[@(webView.hash) stringValue]];
 }
 
 #pragma mark - getter
@@ -264,6 +272,12 @@ typedef void(^JHWebRequestFailure)(NSError *error);
         _webView.delegate = self;
     }
     return _webView;
+}
+- (NSMutableDictionary *)requestDic{
+    if (!_requestDic) {
+        _requestDic = @{}.mutableCopy;
+    }
+    return _requestDic;
 }
 @end
 ```
