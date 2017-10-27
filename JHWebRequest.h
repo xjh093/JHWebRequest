@@ -25,6 +25,9 @@ typedef void(^JHWebRequestFailure)(NSError *error);
 // failure callback.
 @property (copy,    nonatomic) JHWebRequestFailure failure;
 
+// time out.
+@property (assign,  nonatomic) NSTimeInterval  timeoutInterval;
+
 // start a get request.
 - (void)jh_start_get_request;
 
