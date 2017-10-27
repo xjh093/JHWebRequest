@@ -8,7 +8,6 @@
 
 #import "JHWebRequestManager.h"
 
-NSCache *_requestCache;
 
 @implementation JHWebRequestManager
 //
@@ -17,8 +16,6 @@ NSCache *_requestCache;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         manager = [[JHWebRequestManager alloc] init];
-        _requestCache = [[NSCache alloc] init];
-        _requestCache.countLimit = 20;
     });
     return manager;
 }
@@ -28,11 +25,7 @@ NSCache *_requestCache;
      parameter:(NSDictionary *)dic
        success:(JHWebRequestSuccess)success
        failure:(JHWebRequestFailure)failure{
-    JHWebRequest *webRequest = [_requestCache objectForKey:url];
-    if (!webRequest) {
-        webRequest = [[JHWebRequest alloc] init];
-        [_requestCache setObject:webRequest forKey:url];
-    }
+    JHWebRequest *webRequest = [[JHWebRequest alloc] init];
     [webRequest jh_get:url parameter:dic success:success failure:failure];
 }
 
@@ -41,11 +34,7 @@ NSCache *_requestCache;
       parameter:(NSDictionary *)dic
         success:(JHWebRequestSuccess)success
         failure:(JHWebRequestFailure)failure{
-    JHWebRequest *webRequest = [_requestCache objectForKey:url];
-    if (!webRequest) {
-        webRequest = [[JHWebRequest alloc] init];
-        [_requestCache setObject:webRequest forKey:url];
-    }
+    JHWebRequest *webRequest = [[JHWebRequest alloc] init];
     [webRequest jh_post:url parameter:dic success:success failure:failure];
 }
 
@@ -56,11 +45,7 @@ NSCache *_requestCache;
        serverSavedName:(NSString *)savedName
                success:(JHWebRequestSuccess)success
                failure:(JHWebRequestFailure)failure{
-    JHWebRequest *webRequest = [_requestCache objectForKey:url];
-    if (!webRequest) {
-        webRequest = [[JHWebRequest alloc] init];
-        [_requestCache setObject:webRequest forKey:url];
-    }
+    JHWebRequest *webRequest = [[JHWebRequest alloc] init];
     [webRequest jh_uploadImage:url parameter:image uploadName:uploadName serverSavedName:savedName success:success failure:failure];
 }
 
