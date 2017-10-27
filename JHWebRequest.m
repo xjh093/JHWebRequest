@@ -16,6 +16,7 @@
 
 @interface JHWebRequest()<UIWebViewDelegate>
 @property (strong,  nonatomic) UIWebView *webView;
+@property (strong,  nonatomic) NSMutableDictionary *requestDic;
 @end
 
 @implementation JHWebRequest
@@ -104,7 +105,8 @@
     NSString *headStr=[NSString stringWithFormat:@"multipart/form-data; boundary=%@",boundary];
     [request setValue:headStr forHTTPHeaderField:@"Content-Type"];
     
-    [self.xx_webView loadRequest:request];
+    [self.webView loadRequest:request];
+    [self.requestDic setObject:self forKey:[@(_webView.hash) stringValue]];
 }
 
 #pragma mark - private
@@ -159,6 +161,7 @@
 #endif
               
     [self.webView loadRequest:request];
+    [self.requestDic setObject:self forKey:[@(_webView.hash) stringValue]];
 }
 
 #pragma mark - UIWebViewDelegate
@@ -186,13 +189,14 @@
     }else if (_success){
         _success(dic);
     }
-    
+    [self.requestDic removeObjectForKey:[@(webView.hash) stringValue]];
 }
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
     JHWRLog(@"error:%@",error);
     if (error && _failure) {
         _failure(error);
     }
+    [self.requestDic removeObjectForKey:[@(webView.hash) stringValue]];
 }
 
 #pragma mark - getter
