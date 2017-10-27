@@ -208,4 +208,10 @@
     }
     return _webView;
 }
+- (NSMutableDictionary *)requestDic{
+    if (!_requestDic) {
+        _requestDic = @{}.mutableCopy;
+    }
+    return _requestDic;
+}
 @end
